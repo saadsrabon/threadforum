@@ -1,0 +1,56 @@
+{
+  "files": {
+    "code": [
+      "apps/api/src/index.ts",
+      "apps/web/eslint.config.mjs",
+      "apps/web/next-env.d.ts",
+      "apps/web/next.config.ts",
+      "apps/web/postcss.config.mjs",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/page.tsx",
+      "packages/shared/src/constants.ts",
+      "packages/shared/src/index.ts",
+      "packages/shared/src/schemas/auth.ts",
+      "packages/shared/src/schemas/community.ts",
+      "packages/shared/src/schemas/thread.ts"
+    ],
+    "document": [
+      "README.md",
+      "apps/web/AGENTS.md",
+      "apps/web/CLAUDE.md",
+      "apps/web/README.md",
+      "docker-compose.yml",
+      "docs/ARCHITECTURE.md",
+      "docs/PROGRESS.md"
+    ],
+    "paper": [],
+    "image": [
+      "apps/web/public/file.svg",
+      "apps/web/public/globe.svg",
+      "apps/web/public/next.svg",
+      "apps/web/public/vercel.svg",
+      "apps/web/public/window.svg"
+    ],
+    "video": []
+  },
+  "total_files": 24,
+  "total_words": 2838,
+  "needs_graph": false,
+  "warning": "Corpus is ~2,838 words - fits in a single context window. You may not need a graph.",
+  "skipped_sensitive": [],
+  "graphifyignore_patterns": 22,
+  "scope": {
+    "requested_mode": "all",
+    "resolved_mode": "all",
+    "source": "configured-default",
+    "root": ".",
+    "candidate_count": null,
+    "included_count": 24,
+    "excluded_untracked_count": 0,
+    "excluded_ignored_count": 0,
+    "excluded_sensitive_count": 0,
+    "missing_committed_count": 0,
+    "warnings": [],
+    "recommendation": null
+  }
+}

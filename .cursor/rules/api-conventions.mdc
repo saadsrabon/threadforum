@@ -1,0 +1,32 @@
+---
+description: Express API and Socket.io conventions
+globs: apps/api/**/*
+alwaysApply: false
+---
+
+# API Rules
+
+## Structure
+- Routes → middleware (auth, validate) → handlers → services
+- Import validation from `@threadsphere/shared` — single source of truth
+- Return `{ error: string, details?: ZodIssue[] }` on 400 validation failures
+
+## Validation Pattern
+```typescript
+import { createThreadSchema } from "@threadsphere/shared";
+
+const parsed = createThreadSchema.safeParse(req.body);
+if (!parsed.success) {
+  return res.status(400).json({ error: "Validation failed", details: parsed.error.issues });
+}
+```
+
+## Socket.io
+- Emit to rooms, never broadcast sensitive user data globally
+- Persist notifications in DB first, then emit via socket
+- Event names from `SOCKET_EVENTS` in `@threadsphere/shared`
+
+## Security
+- Rate limit write endpoints (Redis)
+- Helmet + CORS with explicit `CLIENT_ORIGIN`
+- Sanitize HTML before persist (Phase 2)

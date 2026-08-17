@@ -1,0 +1,35 @@
+---
+description: Core ThreadSphere project conventions — always apply
+alwaysApply: true
+---
+
+# ThreadSphere Project Rules
+
+## Stack
+- **Frontend:** `apps/web` — Next.js App Router, Tailwind, Server Components by default
+- **Backend:** `apps/api` — Express + Socket.io, TypeScript ESM
+- **Shared:** `packages/shared` — Zod schemas, constants (import as `@threadsphere/shared`)
+
+## Conventions
+- Minimize scope; match existing patterns in each app
+- All user input validated server-side with shared Zod schemas — never trust client-only validation
+- Store rich content as sanitized HTML + plain text for search
+- Thread tags: 1–5 required per thread; validate tag IDs/slugs on backend
+- Use httpOnly JWT cookies for auth (no localStorage tokens)
+- Realtime via Socket.io rooms: `user:{id}`, `thread:{id}`, `community:{id}`, `dm:{id}`
+
+## Progress Tracking
+- Update `docs/PROGRESS.md` at end of each session (task status + session log)
+- Prefer Graphify queries (`graphify query "..."`) over grepping for architecture questions
+
+## UI Reference
+- 3-column layout: left sidebar (communities/filters), center feed, right widgets
+- Primary accent: deep red for CTAs
+- Key pages: home, community, thread detail, profile, search, notifications, create community wizard
+
+## Commands
+```bash
+npm run dev          # Turbo dev (web + api)
+npm run typecheck    # TypeScript
+docker compose up -d # Postgres + Redis
+```

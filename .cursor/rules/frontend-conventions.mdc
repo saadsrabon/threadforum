@@ -1,0 +1,28 @@
+---
+description: Next.js frontend patterns for ThreadSphere
+globs: apps/web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend Rules
+
+## Next.js
+- Default to Server Components; add `"use client"` only for interactivity, sockets, editors
+- Use `loading.tsx` and Suspense for feed/search routes
+- `next/image` for avatars, covers, attachments
+- ISR `revalidate: 60` for public community pages
+
+## Layout
+- Reuse `AppHeader`, `CommunitySidebar`, `RightRail`, `ThreadCard`, `TagChip`
+- 3-column grid on desktop; collapse sidebars on mobile
+- Match UI mockups: white cards, subtle borders, red primary buttons
+
+## Data Fetching
+- Server Actions or RSC fetch for initial page data
+- Client fetch + Socket.io for live counts (comments, reactions, notifications)
+- Shared form validation: `@threadsphere/shared` schemas with react-hook-form + zodResolver
+
+## Thread Detail Page
+- Required: title, tag chips (1–5), sanitized rich content, comment thread
+- Tag chips link to `/search?tag={slug}`
+- Left sidebar: community context; right sidebar: author + related

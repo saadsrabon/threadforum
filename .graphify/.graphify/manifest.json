@@ -1,0 +1,98 @@
+{
+  "D:/threadspehere/apps/api/src/index.ts": {
+    "mtime": 1786948824023.4558,
+    "hash": "91971876a22a5698a075a14b61a7ad6f"
+  },
+  "D:/threadspehere/apps/web/eslint.config.mjs": {
+    "mtime": 1786948714451.5088,
+    "hash": "dfa1f5f6a7037bf39dc510f30b180002"
+  },
+  "D:/threadspehere/apps/web/next-env.d.ts": {
+    "mtime": 1786948816637.152,
+    "hash": "8195d2c60ce847a459ae9d308d6a5724"
+  },
+  "D:/threadspehere/apps/web/next.config.ts": {
+    "mtime": 1786948714544.0127,
+    "hash": "9b77af189a21a7a64e4bd7a426f64176"
+  },
+  "D:/threadspehere/apps/web/postcss.config.mjs": {
+    "mtime": 1786948714475.6792,
+    "hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "D:/threadspehere/apps/web/src/app/layout.tsx": {
+    "mtime": 1786948714572.6104,
+    "hash": "70f839ece80281c576701dc08f055685"
+  },
+  "D:/threadspehere/apps/web/src/app/page.tsx": {
+    "mtime": 1786948857182.1514,
+    "hash": "e95e799fff8c88285f634b95e2348a0f"
+  },
+  "D:/threadspehere/packages/shared/src/constants.ts": {
+    "mtime": 1786948831372.6304,
+    "hash": "9685f0caea3eb76f78b9792e972e00b3"
+  },
+  "D:/threadspehere/packages/shared/src/index.ts": {
+    "mtime": 1786948825241.986,
+    "hash": "5cb6724d5293a34f56d5c2b3855bb097"
+  },
+  "D:/threadspehere/packages/shared/src/schemas/auth.ts": {
+    "mtime": 1786948828288.656,
+    "hash": "4fff8dd54eaba3a9cb49d12059bcdb64"
+  },
+  "D:/threadspehere/packages/shared/src/schemas/community.ts": {
+    "mtime": 1786948830745.7993,
+    "hash": "e0e0c9610332c6f53406d186c2848c49"
+  },
+  "D:/threadspehere/packages/shared/src/schemas/thread.ts": {
+    "mtime": 1786948828862.7776,
+    "hash": "063f4d864e8b615b2c653aeb60d0b5b8"
+  },
+  "D:/threadspehere/README.md": {
+    "mtime": 1786948844313.4167,
+    "hash": "db1f18a04d10cd43e960a72b216021ed"
+  },
+  "D:/threadspehere/apps/web/AGENTS.md": {
+    "mtime": 1786948816711.4333,
+    "hash": "01e8142356e15c3404e0d84c48187cd0"
+  },
+  "D:/threadspehere/apps/web/CLAUDE.md": {
+    "mtime": 1786948816711.4333,
+    "hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "D:/threadspehere/apps/web/README.md": {
+    "mtime": 1786948714426.8667,
+    "hash": "f15aaa42d5d299d091b1171097ea56ad"
+  },
+  "D:/threadspehere/docker-compose.yml": {
+    "mtime": 1786948832601.1665,
+    "hash": "dd43edf3fbf6c57e14fce65313e3df2a"
+  },
+  "D:/threadspehere/docs/ARCHITECTURE.md": {
+    "mtime": 1786948842231.3997,
+    "hash": "e58ad8774f282f245f68a310ff84243f"
+  },
+  "D:/threadspehere/docs/PROGRESS.md": {
+    "mtime": 1786948839035.1196,
+    "hash": "4428666b562004b66e99ea2a9a7e9996"
+  },
+  "D:/threadspehere/apps/web/public/file.svg": {
+    "mtime": 1786948714484.638,
+    "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "D:/threadspehere/apps/web/public/globe.svg": {
+    "mtime": 1786948714496.3794,
+    "hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "D:/threadspehere/apps/web/public/next.svg": {
+    "mtime": 1786948714505.0198,
+    "hash": "8e061864f388b47f33a1c3780831193e"
+  },
+  "D:/threadspehere/apps/web/public/vercel.svg": {
+    "mtime": 1786948714514.453,
+    "hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "D:/threadspehere/apps/web/public/window.svg": {
+    "mtime": 1786948714521.375,
+    "hash": "a2760511c65806022ad20adf74370ff3"
+  }
+}

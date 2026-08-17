@@ -1,0 +1,32 @@
+---
+description: Shared validation schemas and content rules
+globs: packages/shared/**/*
+alwaysApply: false
+---
+
+# Validation Rules
+
+## Shared Package
+- All request/response validation schemas live in `packages/shared/src/schemas/`
+- Export types via `z.infer<typeof schema>`
+- Constants (limits, routes, socket events) in `constants.ts`
+
+## Content Limits (enforce in schemas)
+| Field | Min | Max |
+|-------|-----|-----|
+| Thread title | 10 | 200 |
+| Thread body | 50 | 20,000 |
+| Tags per thread | 1 | 5 |
+| Username | 3 | 30 (`a-z0-9_`) |
+| Community slug | 3 | 50 (`a-z0-9-`) |
+
+## Tag Rules
+- Tags must be valid UUIDs referencing existing tags OR created by moderators
+- Display slug: lowercase, hyphens only
+- Blocklist enforced server-side for spam slugs
+
+## When Adding Schemas
+1. Add Zod schema in `packages/shared`
+2. Export from `index.ts`
+3. Use in API handler + frontend form
+4. Update `docs/ARCHITECTURE.md` if new domain entity
