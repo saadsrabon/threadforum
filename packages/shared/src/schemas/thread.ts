@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const createThreadSchema = z.object({
-  communityId: z.string().uuid(),
+  communityId: z.string().uuid().optional().nullable(),
   title: z.string().trim().min(10).max(200),
-  content: z.string().trim().min(50).max(20_000),
+  content: z.string().trim().min(1).max(20_000),
   tagIds: z.array(z.string().uuid()).min(1).max(5),
 });
 

@@ -39,3 +39,6 @@ postgres_data/
 
 # Testing
 coverage/
+
+# Uploads
+uploads/

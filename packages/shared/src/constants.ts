@@ -39,6 +39,7 @@ export const SOCKET_EVENTS = {
   messageSend: "message:send",
   presenceUpdate: "presence:update",
   joinUser: "join:user",
+  joinThread: "join:thread",
 } as const;
 
 export const PHASES = [

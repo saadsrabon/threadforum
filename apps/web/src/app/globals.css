@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f4f5;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --border: #e4e4e7;
+  --muted: #71717a;
+  --primary: #c41e3a;
+  --primary-hover: #a81832;
+  --primary-light: #fef2f2;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@keyframes bell-ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15% {
+    transform: rotate(16deg);
+  }
+  30% {
+    transform: rotate(-14deg);
+  }
+  45% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+.animate-bell-ring {
+  animation: bell-ring 0.65s ease-in-out;
+  transform-origin: 50% 0%;
+}
+
+.notification-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(228 228 231) transparent;
+}
+
+.notification-scroll > div::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notification-scroll > div::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-scroll > div::-webkit-scrollbar-thumb {
+  background-color: rgb(228 228 231);
+  border-radius: 9999px;
+}
+
+.notification-scroll > div::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(212 212 216);
 }

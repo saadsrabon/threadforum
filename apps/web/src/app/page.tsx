@@ -1,62 +1,97 @@
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-zinc-50">
-      <header className="border-b border-zinc-200 bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <span className="text-xl font-bold text-[#C41E3A]">ThreadSphere</span>
-          <nav className="flex gap-4 text-sm text-zinc-600">
-            <a href="/login" className="hover:text-zinc-900">
-              Log in
-            </a>
-            <a
-              href="/register"
-              className="rounded-full bg-[#C41E3A] px-4 py-2 font-medium text-white hover:bg-[#a81832]"
-            >
-              Sign up
-            </a>
-          </nav>
-        </div>
-      </header>
+import { AppFooter } from "@/components/layout/AppFooter";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { PageContent, PageShell } from "@/components/layout/PageShell";
+import { CommunitySidebar } from "@/components/layout/CommunitySidebar";
+import { RightRail } from "@/components/layout/RightRail";
+import { FeaturedThread } from "@/components/feed/FeaturedThread";
+import { FeedPagination } from "@/components/feed/FeedPagination";
+import { HighlightCards } from "@/components/feed/HighlightCards";
+import { ThreadCard } from "@/components/feed/ThreadCard";
+import { emptyStates } from "@/components/ui/EmptyState";
+import { getFeed, formatTimeAgo, initials } from "@/lib/api";
+import { featuredThread, feedThreads, highlights } from "@/lib/mock-data";
+import type { Thread } from "@/lib/mock-data";
 
-      <main className="mx-auto max-w-7xl px-6 py-16">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-12 shadow-sm">
-          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[#C41E3A]">
-            Phase 1 — Foundation
-          </p>
-          <h1 className="mb-4 text-4xl font-bold text-zinc-900">
-            Community forum platform
-          </h1>
-          <p className="mb-8 max-w-2xl text-lg text-zinc-600">
-            ThreadSphere is bootstrapped. Next up: auth, database, and the
-            3-column feed layout from the UI mockups.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <StatusPill label="Monorepo" done />
-            <StatusPill label="Express + Socket.io" done />
-            <StatusPill label="Shared validation" done />
-            <StatusPill label="Auth & DB" done={false} />
-            <StatusPill label="Feed layout" done={false} />
-          </div>
-          <p className="mt-8 text-sm text-zinc-500">
-            Track progress in{" "}
-            <code className="rounded bg-zinc-100 px-1.5 py-0.5">docs/PROGRESS.md</code>
-          </p>
-        </div>
-      </main>
-    </div>
-  );
+function mapFeedThread(
+  t: NonNullable<Awaited<ReturnType<typeof getFeed>>>["threads"][number],
+): Thread {
+  return {
+    id: t.id,
+    title: t.title,
+    excerpt: t.excerpt,
+    community: t.community?.name ?? "Personal post",
+    communitySlug: t.community?.slug,
+    communityColor: t.community?.themeColor ?? "#71717a",
+    author: t.author.displayName,
+    authorInitials: initials(t.author.displayName),
+    timeAgo: formatTimeAgo(t.createdAt),
+    comments: t.commentCount,
+    reactions: t.reactionCount,
+  };
 }
 
-function StatusPill({ label, done }: { label: string; done: boolean }) {
+export default async function HomePage() {
+  const feed = await getFeed();
+  const apiUnavailable = feed === null;
+
+  const featured: Thread & { communitySlug?: string } =
+    feed?.featured
+      ? {
+          id: feed.featured.id,
+          title: feed.featured.title,
+          excerpt: feed.featured.excerpt,
+          community: feed.featured.community?.name ?? "Personal post",
+          communityColor: feed.featured.community?.themeColor ?? "#71717a",
+          communitySlug: feed.featured.community?.slug,
+          author: feed.featured.author.displayName,
+          authorInitials: initials(feed.featured.author.displayName),
+          timeAgo: formatTimeAgo(feed.featured.createdAt),
+          comments: feed.featured.commentCount,
+          reactions: feed.featured.reactionCount,
+          pinned: feed.featured.pinned,
+        }
+      : featuredThread;
+
+  const threads = apiUnavailable
+    ? feedThreads
+    : feed.threads.length > 0
+      ? feed.threads.map(mapFeedThread)
+      : [];
+
+  const showEmptyFeed = !apiUnavailable && threads.length === 0;
+
   return (
-    <span
-      className={`rounded-full px-3 py-1 text-sm font-medium ${
-        done
-          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-          : "bg-zinc-100 text-zinc-500 ring-1 ring-zinc-200"
-      }`}
-    >
-      {done ? "✓" : "○"} {label}
-    </span>
+    <PageShell>
+      <AppHeader />
+
+      <PageContent>
+        <div className="mx-auto grid w-full max-w-[1400px] flex-1 gap-6 px-4 py-6 lg:grid-cols-[240px_minmax(0,1fr)_300px] lg:px-6">
+        <div className="hidden lg:block">
+          <CommunitySidebar />
+        </div>
+
+        <main className="min-w-0 space-y-5">
+          <FeaturedThread thread={featured} communitySlug={featured.communitySlug} />
+          <HighlightCards items={highlights} />
+          {showEmptyFeed ? (
+            emptyStates.feed()
+          ) : (
+            <div className="space-y-4">
+              {threads.map((thread) => (
+                <ThreadCard key={thread.id} thread={thread} />
+              ))}
+            </div>
+          )}
+          {!showEmptyFeed && <FeedPagination />}
+        </main>
+
+        <div className="hidden xl:block">
+          <RightRail />
+        </div>
+        </div>
+      </PageContent>
+
+      <AppFooter />
+    </PageShell>
   );
 }

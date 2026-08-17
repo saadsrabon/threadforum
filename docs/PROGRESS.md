@@ -1,121 +1,152 @@
 # ThreadSphere — Development Progress
 
-> Living document. Update this file at the end of each work session.
 > Last updated: **2026-08-17**
 
-## Repository
+## Current Phase: 3 — Social interactions & polish
 
-- **Remote:** https://github.com/saadsrabon/threadforum.git
-- **Stack:** Next.js 15+ · Express · Socket.io · PostgreSQL · Redis · Prisma · Zod
-- **Knowledge graph:** [Graphify](https://graphify.net/) — query with `/graphify` or `npm run graphify:query "..."`
-
----
-
-## Current Phase: 1 — Foundation
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Monorepo scaffold (Turbo) | ✅ Done | `apps/web`, `apps/api`, `packages/shared` |
-| Shared Zod validation schemas | ✅ Done | auth, thread, community |
-| Express + Socket.io skeleton | ✅ Done | `/health`, `join:user` room |
-| Next.js app shell | ✅ Done | App Router + Tailwind |
-| Docker Compose (Postgres, Redis) | ✅ Done | `docker-compose.yml` |
-| Cursor project rules | ✅ Done | `.cursor/rules/` |
-| Graphify integration | ✅ Done | `.graphify/`, Cursor skill rule |
-| Prisma schema + migrations | ⏳ Next | User, Community, Thread, Tag, Comment |
-| Auth (register/login/JWT) | ⏳ Next | httpOnly cookies |
-| 3-column layout shell | ⏳ Next | Header, sidebars, footer from UI refs |
+| Task | Status |
+|------|--------|
+| Create community wizard | ✅ Done |
+| User profile page | ✅ Done |
+| Follow users API + UI | ✅ Done |
+| Socket.io live comments | ✅ Done |
+| Socket.io live notifications | ✅ Done |
+| Create community cover upload | ✅ Done |
+| Reaction toggles | ✅ Done |
+| Bookmark toggles + saved page | ✅ Done |
+| Join community button | ✅ Done |
+| Image upload API | ✅ Done |
+| DM / personal messaging | ⏭ Skipped (not in scope) |
+| Account settings (profile + password) | ✅ Done |
+| Public profile for connecting | ✅ Done |
+| Bookmarks hub (default saved page) | ✅ Done |
+| Optional community on thread create (personal posts) | ✅ Done |
 
 ---
 
-## Phase Roadmap
+## Session 8 — Personal posts (no community required)
 
-```mermaid
-gantt
-  title ThreadSphere Implementation
-  dateFormat YYYY-MM-DD
-  section Phase 1
-  Foundation           :active, p1, 2026-08-17, 14d
-  section Phase 2
-  Communities & Threads :p2, after p1, 14d
-  section Phase 3
-  Feeds & Search        :p3, after p2, 7d
-  section Phase 4
-  Realtime & Social     :p4, after p3, 14d
-  section Phase 5
-  Polish & E2E          :p5, after p4, 7d
-```
+**API**
+- `communityId` optional/nullable on thread create
+- Migration: nullable `community_id`, partial unique indexes for slug per scope
+- Standalone thread URLs in notifications when no community
 
-| Phase | Focus | Key deliverables |
-|-------|-------|------------------|
-| **1** | Foundation | Monorepo, auth, DB, layout shell |
-| **2** | Communities & Threads | Wizard, thread detail, tags, Tiptap, validation |
-| **3** | Feeds & Search | Home feed, filters, tag pages |
-| **4** | Realtime & Social | Notifications, DMs, follow/connect |
-| **5** | Polish | Moderation, perf, E2E tests |
+**Pages**
+- `/create/thread` — "Personal post — no community" option
+- `/t/[threadId]` — standalone thread detail (redirects to community URL when applicable)
+- Feed, profile, bookmarks, search — handle threads without a community
 
 ---
 
-## Session Log
+## Session 9 — Live notification badge & sound
 
-### 2026-08-17 — Project bootstrap
-
-**Done**
-- Created Turborepo monorepo structure
-- Scaffolded Next.js (`apps/web`) with App Router + Tailwind
-- Created Express API with health check + Socket.io stub
-- Added `@threadsphere/shared` with Zod schemas (auth, thread, community)
-- Added Docker Compose for Postgres + Redis
-- Wrote Cursor rules (project, API, frontend, validation, graphify)
-- Integrated Graphify for codebase knowledge graph
-- Initial commit pushed to GitHub
-
-**Next session**
-1. Add Prisma schema (User, Community, Thread, Tag, Comment, Notification)
-2. Implement auth routes with shared Zod validation
-3. Build 3-column layout matching UI mockups
-4. Wire web → API health check
+**Web**
+- `NotificationProvider` — joins user socket room globally, tracks unread count
+- Header bell shows unread badge + ring animation on new notifications
+- Short chime via Web Audio when a notification arrives (after first user interaction)
+- Notifications inbox: scrollable feed grouped by Today / Yesterday / This week / This month / older months, infinite scroll, category filters
 
 ---
 
-## UI Reference Pages (from mockups)
+**API**
+- `PATCH /users/me` — update display name, bio, location, website, avatar, public visibility
+- `POST /auth/change-password` — change password with current password verification
+- `GET /auth/me` — extended with location, website, isPublic
 
-| Page | Route | Status |
-|------|-------|--------|
-| Home feed | `/` | Pending |
-| Login | `/login` | Pending |
-| Community | `/c/[slug]` | Pending |
-| Thread detail | `/c/[slug]/t/[id]` | Pending |
-| Create community | `/create/community` | Pending |
-| User profile | `/u/[username]` | Pending |
-| Search | `/search` | Pending |
-| Notifications | `/notifications` | Pending |
+**Pages**
+- `/settings` — account settings (profile + security tabs)
+- `/u/[username]` — enhanced public profile for connecting (follow, bio, posts, communities)
+- `/bookmarks` — full 3-column saved threads hub with community filters and remove
 
 ---
 
-## Graphify Usage
+## Session 6 — Skeletons, empty states, auth gates
 
-```bash
-# Rebuild knowledge graph after major changes
-graphify build
+**UX**
+- Route-level `loading.tsx` skeletons for all pages
+- Creative `EmptyState` components (feed, search, bookmarks, notifications, comments, etc.)
+- Global + segment `not-found.tsx` pages (404, community, thread, user)
+- `middleware.ts` protects `/bookmarks`, `/notifications`, `/create/*`
+- `AuthProvider` + auth-aware header (login/signup vs user menu)
+- Public browsing; reactions, bookmarks, comments, join, follow require login
 
-# Query the graph (preferred over grepping large codebase)
-graphify query "how does thread validation work?"
+---
 
-# Trace connections between concepts
-graphify path "createThreadSchema" "registerSchema"
-```
+## Session 5 — Reactions, bookmarks, uploads, join
 
-Open `.graphify/graph.html` in a browser for interactive visualization.
+**API**
+- `POST /threads/:id/react` — toggle reaction, socket emit
+- `POST /threads/:id/bookmark` — toggle bookmark
+- `GET /bookmarks` — list saved threads
+- `POST /uploads/image` — image upload (multer, served at `/uploads`)
+- `POST/DELETE /communities/:slug/join` — join or leave community
+- Thread detail includes `userReacted` / `userBookmarked` when logged in
+
+**Pages & components**
+- `/bookmarks` — saved threads inbox
+- `ReactionButton`, `BookmarkButton`, `JoinCommunityButton`, `ImageUpload`
+- Community page cover banner + icon
+- Create community wizard — cover & icon upload on Appearance step
+- Messaging UI removed from header and profiles
+
+---
+
+## Session 4 — Community wizard, profiles, realtime
+
+**API**
+- `POST /communities` — create community (wizard submit)
+- `GET /users/:username` — profile, posts, communities
+- `POST/DELETE /users/:username/follow`
+- Socket emits on comment, notification, follow
+
+**Pages**
+- `/create/community` — 5-step dark wizard (details, appearance, rules, privacy, preview)
+- `/u/[username]` — 3-column profile (mockup layout)
+- Thread pages auto-refresh on new comments via Socket.io
+- Notifications inbox refreshes live
+
+---
+
+## Demo credentials
+
+| Email | Password |
+|-------|----------|
+| `demo@threadsphere.dev` | `Password1` |
+
+**Sample profiles:** `/u/maya_lin`, `/u/ethan_cole`, `/u/demo_user`
+
+---
+
+## Key URLs
+
+| Page | URL |
+|------|-----|
+| Create community | http://localhost:3000/create/community |
+| User profile | http://localhost:3000/u/maya_lin |
+| Create thread | http://localhost:3000/create/thread |
+| Personal thread | http://localhost:3000/t/{threadId} |
+| Notifications | http://localhost:3000/notifications |
+| Bookmarks | http://localhost:3000/bookmarks |
+| Account settings | http://localhost:3000/settings |
+| Public profile | http://localhost:3000/u/maya_lin |
+
+---
+
+## Try it
+
+1. Log in → react or bookmark a thread → check `/bookmarks`
+2. Log in → `/create/community` → upload cover on Appearance step → visit new community
+3. Visit a community → Join Community → create a thread
+4. Open a thread in two tabs → react in one → count updates in the other via socket
 
 ---
 
 ## Commands
 
 ```bash
-npm install          # Install all workspace deps
-npm run dev          # Start web + api (Turbo)
-docker compose up -d # Postgres + Redis
-npm run build        # Build all packages
-npm run typecheck    # TypeScript check
+docker compose up -d
+cd apps/api && npm run dev
+cd apps/web && npm run dev
 ```
+
+**Env:** set `API_PUBLIC_URL=http://localhost:4001` in `apps/api/.env` for upload URLs.

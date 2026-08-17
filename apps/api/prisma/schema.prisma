@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CommunityPrivacy {
+  PUBLIC
+  RESTRICTED
+  PRIVATE
+}
+
+enum ThreadStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum NotificationType {
+  REPLY
+  MENTION
+  FOLLOW
+  COMMUNITY
+  MESSAGE
+  MODERATION
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name")
+  bio          String?
+  avatarUrl    String?  @map("avatar_url")
+  location     String?
+  website      String?
+  isPublic     Boolean  @default(true) @map("is_public")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  threads            Thread[]
+  comments           Comment[]
+  memberships        CommunityMember[]
+  followers          Follow[]          @relation("Followers")
+  following          Follow[]          @relation("Following")
+  notifications      Notification[]
+  reactions          Reaction[]
+  bookmarks          Bookmark[]
+
+  @@map("users")
+}
+
+model Community {
+  id          String           @id @default(uuid())
+  name        String
+  slug        String           @unique
+  description String
+  privacy     CommunityPrivacy @default(PUBLIC)
+  coverUrl    String?          @map("cover_url")
+  iconUrl     String?          @map("icon_url")
+  themeColor  String?          @map("theme_color")
+  rules       Json?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  members  CommunityMember[]
+  threads  Thread[]
+  tags     CommunityTag[]
+
+  @@map("communities")
+}
+
+model CommunityMember {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  communityId String   @map("community_id")
+  role        String   @default("member")
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, communityId])
+  @@map("community_members")
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  threads     ThreadTag[]
+  communities CommunityTag[]
+
+  @@map("tags")
+}
+
+model Thread {
+  id           String       @id @default(uuid())
+  communityId  String?      @map("community_id")
+  authorId     String       @map("author_id")
+  title        String
+  slug         String
+  contentHtml  String       @map("content_html")
+  contentPlain String       @map("content_plain")
+  status       ThreadStatus @default(OPEN)
+  pinned       Boolean      @default(false)
+  viewCount    Int          @default(0) @map("view_count")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  community Community?  @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  tags      ThreadTag[]
+  reactions Reaction[]
+  bookmarks Bookmark[]
+
+  @@index([communityId])
+  @@map("threads")
+}
+
+model ThreadTag {
+  threadId String @map("thread_id")
+  tagId    String @map("tag_id")
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, tagId])
+  @@map("thread_tags")
+}
+
+model CommunityTag {
+  communityId String @map("community_id")
+  tagId       String @map("tag_id")
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([communityId, tagId])
+  @@map("community_tags")
+}
+
+model Comment {
+  id           String   @id @default(uuid())
+  threadId     String   @map("thread_id")
+  authorId     String   @map("author_id")
+  parentId     String?  @map("parent_id")
+  contentHtml  String   @map("content_html")
+  contentPlain String   @map("content_plain")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  thread   Thread    @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+  reactions Reaction[]
+
+  @@map("comments")
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  threadId  String?  @map("thread_id")
+  commentId String?  @map("comment_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread  Thread?  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, threadId])
+  @@unique([userId, commentId])
+  @@map("reactions")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  threadId  String   @map("thread_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, threadId])
+  @@map("bookmarks")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  body      String?
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}

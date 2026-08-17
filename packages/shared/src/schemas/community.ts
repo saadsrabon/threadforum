@@ -14,6 +14,8 @@ export const createCommunitySchema = z.object({
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/)
     .optional(),
+  coverUrl: z.string().url().max(500).optional(),
+  iconUrl: z.string().url().max(500).optional(),
   rules: z.array(z.string().trim().min(5).max(500)).max(20).optional(),
 });
 
