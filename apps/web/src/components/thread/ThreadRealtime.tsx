@@ -9,7 +9,7 @@ export function ThreadRealtime({ threadId }: { threadId: string }) {
   const router = useRouter();
 
   useEffect(() => {
-    joinThreadRoom(threadId);
+    return joinThreadRoom(threadId);
   }, [threadId]);
 
   useSocketEvent(

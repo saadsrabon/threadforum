@@ -15,6 +15,7 @@ import {
   ACCESS_TOKEN_REFRESH_INTERVAL_MS,
   refreshAccessToken,
 } from "@/lib/auth-session";
+import { disconnectSocket, useSocketAuth } from "@/hooks/useSocket";
 
 type AuthContextValue = {
   user: ApiUser | null;
@@ -69,6 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user, refresh]);
 
+  useSocketAuth(Boolean(user));
+
   const requireAuth = useCallback(
     (returnPath?: string) => {
       if (loading) return false;
@@ -89,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // clear client state even if request fails
     }
+    disconnectSocket();
     setUser(null);
     router.push("/");
     router.refresh();

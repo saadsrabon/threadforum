@@ -17,7 +17,7 @@ import {
   playNotificationSound,
   unlockNotificationSound,
 } from "@/lib/notification-sound";
-import { useJoinUserRoom, useSocketEvent } from "@/hooks/useSocket";
+import { useSocketEvent } from "@/hooks/useSocket";
 
 type NotificationContextValue = {
   unreadCount: number;
@@ -48,8 +48,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       setUnreadCount(0);
     }
   }, [user]);
-
-  useJoinUserRoom(user?.id);
 
   useEffect(() => {
     if (!user) {

@@ -21,6 +21,7 @@ export const API_ROUTES = {
     register: "/auth/register",
     login: "/auth/login",
     refresh: "/auth/refresh",
+    socketToken: "/auth/socket-token",
     logout: "/auth/logout",
     me: "/auth/me",
   },

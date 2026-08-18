@@ -7,6 +7,8 @@ import {
   refreshCookieOptions,
   signAccessToken,
   signRefreshToken,
+  signSocketToken,
+  SOCKET_TOKEN_TTL_SECONDS,
   verifyRefreshToken,
 } from "../lib/jwt.js";
 import { requireAuth } from "../middleware/auth.js";
@@ -115,6 +117,19 @@ authRouter.post("/logout", (_req, res) => {
   res.clearCookie("access_token", { path: "/" });
   res.clearCookie("refresh_token", { path: "/" });
   return res.json({ ok: true });
+});
+
+authRouter.get("/socket-token", requireAuth, (req, res) => {
+  const token = signSocketToken({
+    sub: req.user!.id,
+    username: req.user!.username,
+    email: req.user!.email,
+  });
+
+  return res.json({
+    token,
+    expiresIn: SOCKET_TOKEN_TTL_SECONDS,
+  });
 });
 
 authRouter.get("/me", requireAuth, async (req, res) => {

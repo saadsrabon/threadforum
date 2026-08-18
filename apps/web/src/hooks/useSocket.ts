@@ -2,21 +2,95 @@
 
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
+import { apiFetch } from "@/lib/api";
 import { getSocketUrl } from "@/lib/api-base";
 
 const SOCKET_URL = getSocketUrl();
 
-let sharedSocket: Socket | null = null;
+/** Refresh socket token ~1 minute before the 5-minute expiry. */
+const SOCKET_TOKEN_REFRESH_INTERVAL_MS = 4 * 60 * 1000;
 
-function getSocket() {
+let sharedSocket: Socket | null = null;
+let authenticatePromise: Promise<Socket | null> | null = null;
+
+function createAnonymousSocket(): Socket {
+  sharedSocket = io(SOCKET_URL, {
+    autoConnect: true,
+    transports: ["websocket", "polling"],
+  });
+  return sharedSocket;
+}
+
+export function getSocket(): Socket {
   if (!sharedSocket) {
-    sharedSocket = io(SOCKET_URL, {
-      withCredentials: true,
-      autoConnect: true,
-      transports: ["websocket", "polling"],
-    });
+    return createAnonymousSocket();
   }
   return sharedSocket;
+}
+
+export function disconnectSocket() {
+  if (sharedSocket) {
+    sharedSocket.disconnect();
+    sharedSocket = null;
+  }
+  authenticatePromise = null;
+}
+
+export async function authenticateSocket(): Promise<Socket | null> {
+  if (authenticatePromise) {
+    return authenticatePromise;
+  }
+
+  authenticatePromise = (async () => {
+    try {
+      const { token } = await apiFetch<{ token: string; expiresIn: number }>(
+        "/auth/socket-token",
+      );
+
+      if (sharedSocket) {
+        sharedSocket.auth = { token };
+        if (sharedSocket.connected) {
+          sharedSocket.disconnect().connect();
+        } else {
+          sharedSocket.connect();
+        }
+      } else {
+        sharedSocket = io(SOCKET_URL, {
+          auth: { token },
+          autoConnect: true,
+          transports: ["websocket", "polling"],
+        });
+      }
+
+      return sharedSocket;
+    } catch {
+      disconnectSocket();
+      return null;
+    } finally {
+      authenticatePromise = null;
+    }
+  })();
+
+  return authenticatePromise;
+}
+
+export function useSocketAuth(isAuthenticated: boolean) {
+  useEffect(() => {
+    if (!isAuthenticated) {
+      disconnectSocket();
+      return;
+    }
+
+    void authenticateSocket();
+
+    const interval = window.setInterval(() => {
+      void authenticateSocket();
+    }, SOCKET_TOKEN_REFRESH_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [isAuthenticated]);
 }
 
 export function useSocketEvent(
@@ -29,35 +103,31 @@ export function useSocketEvent(
 
   useEffect(() => {
     if (!enabled) return;
+
     const socket = getSocket();
     const listener = (payload: unknown) => handlerRef.current(payload);
     socket.on(event, listener);
+
     return () => {
       socket.off(event, listener);
     };
   }, [event, enabled]);
 }
 
-export function joinUserRoom(userId: string) {
-  getSocket().emit("join:user", userId);
-}
-
 export function joinThreadRoom(threadId: string) {
-  getSocket().emit("join:thread", threadId);
-}
+  const socket = getSocket();
 
-export function useJoinUserRoom(userId: string | undefined) {
-  useEffect(() => {
-    if (!userId) return;
+  const join = () => {
+    socket.emit("join:thread", threadId);
+  };
 
-    const socket = getSocket();
-    const join = () => joinUserRoom(userId);
-
+  if (socket.connected) {
     join();
-    socket.on("connect", join);
+  }
 
-    return () => {
-      socket.off("connect", join);
-    };
-  }, [userId]);
+  socket.on("connect", join);
+
+  return () => {
+    socket.off("connect", join);
+  };
 }

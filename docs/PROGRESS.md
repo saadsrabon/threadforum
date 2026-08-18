@@ -55,6 +55,7 @@
 - Auto-refresh on 401 in `apiFetch` using `POST /auth/refresh`
 - Proactive refresh every 14 minutes + on window focus while logged in
 - Socket.io still connects directly to API host (`NEXT_PUBLIC_SOCKET_URL`)
+- Socket auth: `GET /auth/socket-token` + handshake middleware; user rooms joined server-side
 
 ---
 

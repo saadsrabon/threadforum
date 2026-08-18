@@ -18,7 +18,7 @@ import { threadsRouter } from "./routes/threads.js";
 import { uploadsRouter } from "./routes/uploads.js";
 import { usersRouter } from "./routes/users.js";
 import { setSocketServer } from "./lib/socket.js";
-import { SOCKET_EVENTS } from "@threadsphere/shared";
+import { onSocketConnection, socketAuthMiddleware } from "./lib/socket-auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -79,18 +79,10 @@ app.use(interactionsRouter);
 
 setSocketServer(io);
 
-io.on("connection", (socket) => {
-  socket.on(SOCKET_EVENTS.joinUser, (userId: string) => {
-    if (typeof userId === "string" && userId.length > 0) {
-      socket.join(`user:${userId}`);
-    }
-  });
+io.use(socketAuthMiddleware);
 
-  socket.on("join:thread", (threadId: string) => {
-    if (typeof threadId === "string" && threadId.length > 0) {
-      socket.join(`thread:${threadId}`);
-    }
-  });
+io.on("connection", (socket) => {
+  onSocketConnection(socket);
 });
 
 httpServer.listen(PORT, () => {
