@@ -8,9 +8,8 @@ import { TagChip } from "@/components/ui/TagChip";
 import { Avatar } from "@/components/ui/Avatar";
 import { emptyStates } from "@/components/ui/EmptyState";
 import { initials } from "@/lib/api";
+import { getApiBaseUrl } from "@/lib/api-base";
 import { threadLabel, threadPath } from "@/lib/thread-url";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string; tag?: string; sort?: string }>;
@@ -22,7 +21,7 @@ async function search(query: { q?: string; tag?: string; sort?: string }) {
   if (query.tag) params.set("tag", query.tag);
   if (query.sort) params.set("sort", query.sort);
 
-  const res = await fetch(`${API_URL}/search?${params}`, {
+  const res = await fetch(`${getApiBaseUrl()}/search?${params}`, {
     next: { revalidate: 30 },
   });
   if (!res.ok) return null;

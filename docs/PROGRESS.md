@@ -48,6 +48,16 @@
 
 ---
 
+## Session 10 — Session persistence (token refresh)
+
+**Web**
+- API requests proxied via `/api/*` so auth cookies live on the web origin (fixes middleware + fast logout)
+- Auto-refresh on 401 in `apiFetch` using `POST /auth/refresh`
+- Proactive refresh every 14 minutes + on window focus while logged in
+- Socket.io still connects directly to API host (`NEXT_PUBLIC_SOCKET_URL`)
+
+---
+
 **API**
 - `PATCH /users/me` — update display name, bio, location, website, avatar, public visibility
 - `POST /auth/change-password` — change password with current password verification

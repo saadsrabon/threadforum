@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import type { ApiUser } from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
+import { getApiBaseUrl } from "@/lib/api-base";
 
 function cookieHeaderFromStore(cookieStore: Awaited<ReturnType<typeof cookies>>) {
   return cookieStore
@@ -19,7 +18,7 @@ export async function getCurrentUser(): Promise<ApiUser | null> {
   }
 
   try {
-    const res = await fetch(`${API_URL}/auth/me`, {
+    const res = await fetch(`${getApiBaseUrl()}/auth/me`, {
       headers: { Cookie: cookieHeaderFromStore(cookieStore) },
       cache: "no-store",
     });
@@ -39,7 +38,7 @@ export async function getUserProfile(username: string) {
   const cookieStore = await cookies();
 
   try {
-    const res = await fetch(`${API_URL}/users/${encodeURIComponent(username)}`, {
+    const res = await fetch(`${getApiBaseUrl()}/users/${encodeURIComponent(username)}`, {
       headers: { Cookie: cookieHeaderFromStore(cookieStore) },
       cache: "no-store",
     });

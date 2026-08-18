@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
+import { getApiBaseUrl } from "./api-base";
+import { isAuthRefreshPath, refreshAccessToken } from "./auth-session";
 
 export type ApiUser = {
   id: string;
@@ -44,21 +45,35 @@ async function parseJson<T>(res: Response): Promise<T> {
   return data as T;
 }
 
-export async function apiFetch<T>(
+async function request<T>(
   path: string,
   init?: RequestInit & { json?: unknown },
-): Promise<T> {
+): Promise<Response> {
   const headers = new Headers(init?.headers);
   if (init?.json) {
     headers.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
+  return fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     headers,
     credentials: "include",
     body: init?.json ? JSON.stringify(init.json) : init?.body,
   });
+}
+
+export async function apiFetch<T>(
+  path: string,
+  init?: RequestInit & { json?: unknown },
+): Promise<T> {
+  let res = await request(path, init);
+
+  if (res.status === 401 && !isAuthRefreshPath(path)) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      res = await request(path, init);
+    }
+  }
 
   return parseJson<T>(res);
 }
@@ -67,11 +82,22 @@ export async function uploadImage(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch(`${API_URL}/uploads/image`, {
+  let res = await fetch(`${getApiBaseUrl()}/uploads/image`, {
     method: "POST",
     credentials: "include",
     body: formData,
   });
+
+  if (res.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      res = await fetch(`${getApiBaseUrl()}/uploads/image`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+    }
+  }
 
   const data = await parseJson<{ url: string }>(res);
   return data.url;

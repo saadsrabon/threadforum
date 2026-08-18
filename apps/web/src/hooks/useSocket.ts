@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
+import { getSocketUrl } from "@/lib/api-base";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
+const SOCKET_URL = getSocketUrl();
 
 let sharedSocket: Socket | null = null;
 

@@ -11,6 +11,10 @@ import {
 import { useRouter } from "next/navigation";
 import { apiFetch, type ApiUser } from "@/lib/api";
 import { loginUrl } from "@/lib/auth-client";
+import {
+  ACCESS_TOKEN_REFRESH_INTERVAL_MS,
+  refreshAccessToken,
+} from "@/lib/auth-session";
 
 type AuthContextValue = {
   user: ApiUser | null;
@@ -42,6 +46,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = window.setInterval(() => {
+      void refreshAccessToken().then((ok) => {
+        if (ok) void refresh();
+      });
+    }, ACCESS_TOKEN_REFRESH_INTERVAL_MS);
+
+    const onFocus = () => {
+      void refreshAccessToken().then((ok) => {
+        if (ok) void refresh();
+      });
+    };
+
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [user, refresh]);
 
   const requireAuth = useCallback(
     (returnPath?: string) => {
